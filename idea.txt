@@ -1,0 +1,7 @@
+flutter build apk --debug
+
+
+adb connect <your_phone_ip>:<port>
+flutter run
+
+
