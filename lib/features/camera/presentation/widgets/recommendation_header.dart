@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frameiq/features/camera/application/camera_controller.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class RecommendationHeader extends ConsumerWidget {
   const RecommendationHeader({super.key});
@@ -21,7 +22,7 @@ class RecommendationHeader extends ConsumerWidget {
         children: [
           // Distance icon and text
             const Icon(
-              LucideIcons.mapPin,
+              LucideIcons.map_pin,
               size: 16,
               color: Colors.white70,
             ),

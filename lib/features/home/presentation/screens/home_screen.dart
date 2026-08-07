@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('FrameIQ'),
         actions: [
           IconButton(
-            icon: const Icon(lucide_icons.settings),
+            icon: const Icon(LucideIcons.settings),
             onPressed: () {
               context.go('/settings');
             },
@@ -77,19 +78,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
         destinations: const [
           NavigationDestination(
-            icon: Icon(lucide_icons.home),
+            icon: Icon(LucideIcons.house),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(lucide_icons.camera),
+            icon: Icon(LucideIcons.camera),
             label: 'Camera',
           ),
           NavigationDestination(
-            icon: Icon(lucide_icons.images),
+            icon: Icon(LucideIcons.images),
             label: 'Library',
           ),
           NavigationDestination(
-            icon: Icon(lucide_icons.settings),
+            icon: Icon(LucideIcons.settings),
             label: 'Settings',
           ),
         ],
@@ -106,7 +107,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: TextField(
         decoration: InputDecoration(
           hintText: 'Search scenes, poses, or locations...',
-          prefixIcon: const Icon(lucide_icons.search),
+          prefixIcon: const Icon(LucideIcons.search),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -331,7 +332,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
-                          lucide_icons.star,
+                          LucideIcons.star,
                           size: 16,
                           color: Colors.white,
                         ),

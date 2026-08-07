@@ -23,15 +23,9 @@ class AppTheme {
       unselectedItemColor: Color(0xFF6B7280),
       type: BottomNavigationBarType.fixed,
     ),
-    cardTheme: CardTheme(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-    ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.white,
-      elevation: 2,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -60,7 +54,7 @@ class AppTheme {
       unselectedItemColor: Color(0xFF9CA3AF),
       type: BottomNavigationBarType.fixed,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Color(0xFF1F2937), // Gray-800
       elevation: 2,
       shape: RoundedRectangleBorder(

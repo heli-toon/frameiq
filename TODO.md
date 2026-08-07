@@ -18,11 +18,18 @@
     - [x] Presentation: LevelIndicator (using sensors_plus for device tilt)
     - [x] Presentation: CameraControls (flash, capture, gallery, zoom slider)
     - [x] Presentation: RecommendationHeader (zoom, distance, tilt display)
+- [x] Implemented Remaining Screens (placeholders):
+    - [x] Scenes Selection Screen (grid of scenes)
+    - [x] Environments Selection Screen (grid of environments for selected scene)
+    - [x] Poses Selection Screen (grid of poses)
+    - [x] Overlay Browser Screen (search, filter, sort overlays)
+    - [x] Library Screen (favorites and recently used overlays)
+    - [x] Settings Screen (dark/light mode, about, privacy, version)
 
 ## In Progress
 - [ ] Complete Camera Feature:
     - [x] Connect overlay opacity slider to OverlaySettings provider
-    - [ ] Implement actual overlay loading based on selected overlay
+    - [x] Implement actual overlay loading based on selected overlay
     - [ ] Implement capture review screen (show captured image, save/retake/share/favorite)
     - [x] Implement proper zoom control (sync between slider and camera controller)
     - [ ] Add grid toggle (rule of thirds overlay)
@@ -35,13 +42,6 @@
     - [ ] Create mock JSON data in assets for scenes, environments, poses, overlays
     - [ ] Set up Hive boxes for favorites, recently used, app preferences
     - [ ] Create repository interfaces and implementations (local data source)
-- [ ] Implement Remaining Screens:
-    - [ ] Scenes Selection Screen (grid of scenes)
-    - [ ] Environments Selection Screen (grid of environments for selected scene)
-    - [ ] Poses Selection Screen (grid of poses)
-    - [ ] Overlay Browser Screen (search, filter, sort overlays)
-    - [ ] Library Screen (favorites and recently used overlays)
-    - [ ] Settings Screen (dark/light mode, about, privacy, version)
 - [ ] Implement Navigation Flow:
    
 - [ ] Implement Favorites and Recently Used functionality (Hive)

@@ -78,8 +78,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
     // Hide bottom navigation bar in camera screen
     redirect: (context, state) {
-      final loggingIn = true; // Replace with actual auth check
-      final loggingOut = true; // Replace with actual auth check
+      final loggingIn = false; // TODO: Replace with actual auth check
+      final loggingOut = false; // TODO: Replace with actual auth check
 
       if (loggingIn) return '/splash';
       if (loggingOut) return '/onboarding';

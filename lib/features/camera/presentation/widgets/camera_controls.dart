@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:camera/camera.dart' as camera;
 import 'package:frameiq/features/camera/application/camera_controller.dart';
 
 class CameraControls extends ConsumerWidget {
@@ -18,6 +19,8 @@ class CameraControls extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final overlayOpacity = ref.watch(overlaySettingsProvider);
+    final zoomLevel = ref.watch(zoomLevelProvider);
+    final cameraAsync = ref.watch(cameraControllerNotifierProvider);
 
     return Positioned(
       bottom: 30,
@@ -33,9 +36,16 @@ class CameraControls extends ConsumerWidget {
               // Flash button
                 IconButton(
                   icon: Icon(
-                    ref.watch(cameraControllerProvider).value?.value.flashMode == FlashMode.torch
+                    cameraAsync.when(
+                      data: (controller) => controller?.value.flashMode == camera.FlashMode.torch,
+                      loading: () => false,
+                      error: (_, __) => false,
+                    ) ||
+                        cameraAsync.maybeWhen(
+                          orElse: () => false,
+                        )
                         ? LucideIcons.zap
-                        : LucideIcons.zapOff,
+                        : LucideIcons.zap_off,
                     color: Colors.white,
                     size: 28,
                   ),
@@ -85,7 +95,7 @@ class CameraControls extends ConsumerWidget {
             child: Row(
               children: [
                 const Icon(
-                  LucideIcons.zoomIn,
+                  LucideIcons.zoom_in,
                   color: Colors.white54,
                   size: 20,
                 ),
@@ -102,18 +112,18 @@ class CameraControls extends ConsumerWidget {
                       min: 1.0,
                       max: 5.0,
                       divisions: 4,
-                      label: '${ref.watch(zoomLevelProvider)}x',
-                      value: ref.watch(zoomLevelProvider),
+                      label: '${zoomLevel}x',
+                      value: zoomLevel,
                       onChanged: (value) {
                         onZoomChanged(value);
-                        ref.read(cameraControllerProvider.notifier).setZoom(value);
+                        ref.read(cameraControllerNotifierProvider.notifier).setZoom(value);
                         ref.read(zoomLevelProvider.notifier).state = value;
                       },
                     ),
                   ),
                 ),
                 const Icon(
-                  LucideIcons.zoomOut,
+                  LucideIcons.zoom_out,
                   color: Colors.white54,
                   size: 20,
                 ),
@@ -129,7 +139,7 @@ class CameraControls extends ConsumerWidget {
             child: Row(
               children: [
                 const Icon(
-                  LucideIcons.opacity,
+                  LucideIcons.circle_dashed, // Using circle-dashed as opacity equivalent
                   color: Colors.white54,
                   size: 20,
                 ),
@@ -155,7 +165,7 @@ class CameraControls extends ConsumerWidget {
                   ),
                 ),
                 const Icon(
-                  LucideIcons.off,
+                  LucideIcons.circle, // Using circle as off/on equivalent
                   color: Colors.white54,
                   size: 20,
                 ),

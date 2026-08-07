@@ -1,50 +1,53 @@
-import 'package:camera/camera.dart';
+import 'package:camera/camera.dart' as camera;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'camera_controller.g.dart';
 
 @riverpod
-class CameraController extends _$CameraController {
-  CameraController? _controller;
-
+class CameraControllerNotifier extends _$CameraControllerNotifier {
   @override
-  FutureOr<CameraController?> build() async {
-    final cameras = await availableCameras();
+  FutureOr<camera.CameraController?> build() async {
+    final cameras = await camera.availableCameras();
     if (cameras.isEmpty) return null;
 
-    _controller = CameraController(
+    final controller = camera.CameraController(
       cameras.first,
-      ResolutionPreset.pro,
+      camera.ResolutionPreset.max, // Fixed: use max instead of non-existent 'pro'
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      imageFormatGroup: camera.ImageFormatGroup.jpeg,
     );
 
-    await _controller!.initialize();
-    return _controller;
+    await controller.initialize();
+    return controller;
   }
 
-  Future<XFile?> capturePhoto() async {
-    if (_controller == null || !_controller!.value.isInitialized) return null;
-    return await _controller!.takePicture();
+  Future<camera.XFile?> capturePhoto() async {
+    final controller = state.value;
+    if (controller == null || !controller.value.isInitialized) return null;
+    return await controller.takePicture();
   }
 
   Future<void> toggleFlash() async {
-    if (_controller == null) return;
-    final currentMode = _controller!.value.flashMode;
-    final nextMode = currentMode == FlashMode.off ? FlashMode.torch : FlashMode.off;
-    await _controller!.setFlashMode(nextMode);
+    final controller = state.value;
+    if (controller == null) return;
+    final currentMode = controller.value.flashMode;
+    final nextMode = currentMode == camera.FlashMode.off ? camera.FlashMode.torch : camera.FlashMode.off;
+    await controller.setFlashMode(nextMode);
     ref.notifyListeners();
   }
 
   Future<void> setZoom(double value) async {
-    await _controller?.setZoomLevel(value);
-    // Notify the zoom level provider to update
-    ref.read(zoomLevelProvider.notifier).state = value;
+    final controller = state.value;
+    if (controller == null) return;
+    await controller.setZoomLevel(value);
+    ref.read(zoomLevelProvider.notifier).setZoom(value);
   }
 
-  Future<void> dispose() async {
-    await _controller?.dispose();
-    super.dispose();
+  @override
+  void dispose() {
+    final controller = state.value;
+    controller?.dispose();
   }
 }
 

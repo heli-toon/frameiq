@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class OnboardingScreen extends ConsumerStatefulWidget {
+class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
+class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -66,7 +66,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(24.0),

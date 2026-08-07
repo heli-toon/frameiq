@@ -1,0 +1,40 @@
+import 'package:frameiq/features/camera/domain/models/overlay_model.dart';
+
+List<OverlayModel> mockOverlays = [
+  OverlayModel(
+    id: '1',
+    title: 'Rule of Thirds',
+    overlayAsset: 'assets/overlays/rule_of_thirds.png',
+    recommendedZoom: 1.0,
+    recommendedTilt: 0.0,
+    recommendedDistance: '1.5m',
+    recommendedHeight: 'Eye Level',
+    lightingDirection: 'Front',
+    difficulty: 'Beginner',
+    tips: 'Align your subject with the intersection points',
+  ),
+  OverlayModel(
+    id: '2',
+    title: 'Golden Ratio',
+    overlayAsset: 'assets/overlays/golden_ratio.png',
+    recommendedZoom: 1.2,
+    recommendedTilt: 0.0,
+    recommendedDistance: '2.0m',
+    recommendedHeight: 'Eye Level',
+    lightingDirection: 'Side',
+    difficulty: 'Intermediate',
+    tips: 'Place important elements along the spiral',
+  ),
+  OverlayModel(
+    id: '3',
+    title: 'Diagonal Lines',
+    overlayAsset: 'assets/overlays/diagonal_lines.png',
+    recommendedZoom: 1.0,
+    recommendedTilt: 0.0,
+    recommendedDistance: '1.8m',
+    recommendedHeight: 'Eye Level',
+    lightingDirection: 'Back',
+    difficulty: 'Advanced',
+    tips: 'Use diagonal lines to create depth',
+  ),
+];
