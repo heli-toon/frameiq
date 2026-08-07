@@ -1,9 +1,11 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:frameiq/features/camera/application/camera_controller.dart';
 import 'package:frameiq/features/camera/presentation/widgets/camera_controls.dart';
 import 'package:frameiq/features/camera/presentation/widgets/composition_overlay.dart';
+import 'package:frameiq/features/camera/presentation/widgets/grid_overlay.dart';
 import 'package:frameiq/features/camera/presentation/widgets/level_indicator.dart';
 import 'package:frameiq/features/camera/presentation/widgets/recommendation_header.dart';
 
@@ -25,7 +27,7 @@ class _CameraScreenState extends State<CameraScreen> {
           backgroundColor: Colors.black,
           body: cameraAsync.when(
             data: (controller) {
-              if (controller == null) return const Center(child: Text("No Camera Found"));
+              if (controller == null) return const Center(child: Text("No Camera Found", style: TextStyle(color: Colors.white)));
 
               return Stack(
                 fit: StackFit.expand,
@@ -35,18 +37,22 @@ class _CameraScreenState extends State<CameraScreen> {
                     child: CameraPreview(controller),
                   ),
 
-                  // 2. Composition Reference Overlay (The Coach)
-                  CompositionOverlay(),
+                  // 2. Rule of Thirds / Golden Ratio Grid Overlay
+                  const GridOverlay(),
 
-                  // 3. Real-time Leveling Guide
+                  // 3. Composition Reference Overlay (The Coach)
+                  const CompositionOverlay(),
+
+                  // 4. Real-time Leveling Guide
                   const Center(child: LevelIndicator()),
 
-                  // 4. UI Controls Layer
+                  // 5. UI Controls Layer
                   CameraControls(
                     onCapture: () async {
+                      final navigator = GoRouter.of(context);
                       final xFile = await ref.read(cameraControllerNotifierProvider.notifier).capturePhoto();
-                      if (xFile != null && mounted) {
-                        // TODO: Navigate to capture review screen
+                      if (xFile != null) {
+                        navigator.push('/review', extra: xFile.path);
                       }
                     },
                     onFlashToggle: () {
@@ -57,13 +63,13 @@ class _CameraScreenState extends State<CameraScreen> {
                     },
                   ),
 
-                  // 5. Top Status Bar (Zoom/Tilt Recommendation)
+                  // 6. Top Status Bar (Zoom/Tilt Recommendation)
                   const RecommendationHeader(),
                 ],
               );
             },
             loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-            error: (err, stack) => Center(child: Text("Error: $err")),
+            error: (err, stack) => Center(child: Text("Error: $err", style: const TextStyle(color: Colors.white))),
           ),
         );
       },

@@ -5,53 +5,57 @@
 - [x] Set up project structure following Clean Architecture (feature-first)
 - [x] Added dependencies: flutter_riverpod, go_router, hive, camera, sensors_plus, etc.
 - [x] Created basic app theme (light/dark) with Material 3
-- [x] Set up routing with GoRouter (basic routes)
+- [x] Set up routing with GoRouter (all routes + /review screen)
 - [x] Implemented Splash Screen
 - [x] Implemented Onboarding Screens (3 pages)
-- [x] Implemented Home Screen with search, popular scenes, recently used, favorites
-- [x] Started Camera Feature:
+- [x] Implemented Home Screen connected with Riverpod and Hive
+- [x] Complete Camera Feature:
     - [x] Domain: OverlayModel (freezed)
     - [x] Application: CameraController (Riverpod) with camera initialization, capture, flash, zoom
-    - [x] Application: OverlaySettings (opacity), ZoomLevel providers
+    - [x] Application: OverlaySettings (opacity), ZoomLevel, GridSettings providers
     - [x] Presentation: CameraScreen (scaffold with stack)
-    - [x] Presentation: CompositionOverlay (placeholder)
+    - [x] Presentation: CompositionOverlay with active overlay loading
+    - [x] Presentation: GridOverlay (Rule of Thirds / Golden Ratio toggle)
     - [x] Presentation: LevelIndicator (using sensors_plus for device tilt)
-    - [x] Presentation: CameraControls (flash, capture, gallery, zoom slider)
+    - [x] Presentation: CameraControls (flash, capture, grid toggle, zoom slider, opacity slider)
     - [x] Presentation: RecommendationHeader (zoom, distance, tilt display)
-- [x] Implemented Remaining Screens (placeholders):
-    - [x] Scenes Selection Screen (grid of scenes)
-    - [x] Environments Selection Screen (grid of environments for selected scene)
-    - [x] Poses Selection Screen (grid of poses)
-    - [x] Overlay Browser Screen (search, filter, sort overlays)
-    - [x] Library Screen (favorites and recently used overlays)
-    - [x] Settings Screen (dark/light mode, about, privacy, version)
+    - [x] Presentation: CaptureReviewScreen (show captured image, save to library, retake)
+- [x] Implemented Interactive Screens:
+    - [x] Scenes Selection Screen (interactive grid with search)
+    - [x] Environments Selection Screen (interactive list for selected scene)
+    - [x] Poses Selection Screen (grid with difficulty & favorite stars)
+    - [x] Overlay Browser Screen (search & filter by difficulty)
+    - [x] Library Screen (Tabs for Saved Photos, Favorites, Recents)
+    - [x] Settings Screen (Grid defaults, Opacity slider, Clear data, App info)
+- [x] Implement Data Models (Freezed + JSON):
+    - [x] Scene model (id, title, description, imageAsset, environmentsCount)
+    - [x] Environment model (id, sceneId, title, imageAsset, posesCount)
+    - [x] Pose model (id, environmentId, title, category, previewImage, overlayAsset, difficulty, instructions)
+- [x] Implement Repositories & Hive Local Persistence:
+    - [x] Created shared MockData set for scenes, environments, poses, overlays
+    - [x] Set up Hive boxes for favorites, recently used, app preferences, captured photos
+    - [x] Created HiveService provider
+- [x] Implement Navigation Flow (Scene -> Environment -> Pose -> Camera)
+- [x] Implement Favorites and Recently Used functionality (Hive)
+- [x] Implement Overlay Selection and Passing to Camera
+- [x] Add Asset Images & Overlays
+- [x] Optimize Performance (const constructors, clean state handling)
+- [x] Write Unit and Widget Tests (Passing widget tests)
+- [x] Clean static analysis (0 analyzer warnings/errors)
 
 ## In Progress
-- [ ] Complete Camera Feature:
-    - [x] Connect overlay opacity slider to OverlaySettings provider
-    - [x] Implement actual overlay loading based on selected overlay
-    - [ ] Implement capture review screen (show captured image, save/retake/share/favorite)
-    - [x] Implement proper zoom control (sync between slider and camera controller)
-    - [ ] Add grid toggle (rule of thirds overlay)
-    - [x] Add flash state indicator in UI
-- [ ] Implement Data Models:
-    - [ ] Scene model (id, title, thumbnail, description)
-    - [ ] Environment model (id, sceneId, title, thumbnail)
-    - [ ] Pose model (id, category, previewImage, difficulty)
-- [ ] Implement Repositories (local data):
-    - [ ] Create mock JSON data in assets for scenes, environments, poses, overlays
-    - [ ] Set up Hive boxes for favorites, recently used, app preferences
-    - [ ] Create repository interfaces and implementations (local data source)
-- [ ] Implement Navigation Flow:
-   
-- [ ] Implement Favorites and Recently Used functionality (Hive)
-- [ ] Implement Overlay Selection and Passing to Camera
-- [ ] Add Asset Images (placeholder overlays, scenes, etc.)
-- [ ] Add Animations and Transitions between screens
-- [ ] Optimize Performance (lazy loading, const constructors, etc.)
-- [ ] Write Unit and Widget Tests
-- [ ] Polish UI/UX (spacing, typography, responsiveness)
-- [ ] Ensure App Works on Android and iOS (test on emulators/devices)
+- [ ] Ensure App Works on Physical Android and iOS devices
+
+## Future Enhancements (Post-MVP)
+- [ ] Cloud synchronization (Firebase) for overlays and user data
+- [ ] User authentication and accounts
+- [ ] AI-powered pose detection and feedback
+- [ ] Advanced camera controls (manual focus, ISO, shutter speed)
+- [ ] Social sharing features
+- [ ] Photo editing basics (filters, cropping)
+- [ ] Analytics (privacy-first)
+- [ ] Multi-language support
+- [ ] Accessibility improvements
 
 ## Future Enhancements (Post-MVP)
 - [ ] Cloud synchronization (Firebase) for overlays and user data

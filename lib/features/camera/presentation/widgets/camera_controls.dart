@@ -34,24 +34,40 @@ class CameraControls extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Flash button
-                IconButton(
-                  icon: Icon(
-                    cameraAsync.when(
-                      data: (controller) => controller?.value.flashMode == camera.FlashMode.torch,
-                      loading: () => false,
-                      error: (_, __) => false,
-                    ) ||
-                        cameraAsync.maybeWhen(
-                          orElse: () => false,
-                        )
-                        ? LucideIcons.zap
-                        : LucideIcons.zap_off,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  onPressed: onFlashToggle,
+              IconButton(
+                icon: Icon(
+                  cameraAsync.when(
+                    data: (controller) => controller?.value.flashMode == camera.FlashMode.torch,
+                    loading: () => false,
+                    error: (_, __) => false,
+                  )
+                      ? LucideIcons.zap
+                      : LucideIcons.zap_off,
+                  color: Colors.white,
+                  size: 26,
                 ),
-              const SizedBox(width: 24),
+                onPressed: onFlashToggle,
+              ),
+              const SizedBox(width: 16),
+
+              // Grid Toggle button
+              IconButton(
+                icon: Icon(
+                  ref.watch(gridSettingsProvider) == GridType.none
+                      ? LucideIcons.grid_2x2
+                      : ref.watch(gridSettingsProvider) == GridType.ruleOfThirds
+                          ? LucideIcons.grid_3x3
+                          : LucideIcons.frame,
+                  color: ref.watch(gridSettingsProvider) != GridType.none
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.white,
+                  size: 26,
+                ),
+                onPressed: () {
+                  ref.read(gridSettingsProvider.notifier).toggleGrid();
+                },
+              ),
+              const SizedBox(width: 16),
 
               // Capture button
               GestureDetector(
@@ -72,19 +88,19 @@ class CameraControls extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 24),
+              const SizedBox(width: 16),
 
               // Gallery shortcut
-                IconButton(
-                  icon: const Icon(
-                    LucideIcons.image,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  onPressed: () {
-                    // TODO: Open gallery
-                  },
+              IconButton(
+                icon: const Icon(
+                  LucideIcons.image,
+                  color: Colors.white,
+                  size: 26,
                 ),
+                onPressed: () {
+                  onZoomChanged(1.0);
+                },
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -112,12 +128,12 @@ class CameraControls extends ConsumerWidget {
                       min: 1.0,
                       max: 5.0,
                       divisions: 4,
-                      label: '${zoomLevel}x',
+                      label: '${zoomLevel.toStringAsFixed(1)}x',
                       value: zoomLevel,
                       onChanged: (value) {
                         onZoomChanged(value);
                         ref.read(cameraControllerNotifierProvider.notifier).setZoom(value);
-                        ref.read(zoomLevelProvider.notifier).state = value;
+                        ref.read(zoomLevelProvider.notifier).setZoom(value);
                       },
                     ),
                   ),

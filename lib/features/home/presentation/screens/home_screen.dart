@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:frameiq/core/services/hive_service.dart';
+import 'package:frameiq/features/camera/domain/models/overlay_model.dart';
+import 'package:frameiq/features/camera/providers/overlay_providers.dart';
+import 'package:frameiq/shared/data/mock_data.dart';
+import 'package:frameiq/shared/providers/selection_providers.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _selectedIndex = 0;
 
   @override
@@ -36,21 +41,21 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 24),
 
           // Popular Scenes
-          _buildSectionHeader('Popular Scenes'),
+          _buildSectionHeader('Popular Scenes', onSeeAll: () => context.push('/scenes')),
           const SizedBox(height: 12),
           _buildSceneGrid(),
 
           const SizedBox(height: 24),
 
           // Recently Used
-          _buildSectionHeader('Recently Used'),
+          _buildSectionHeader('Recently Used', onSeeAll: () => context.go('/library')),
           const SizedBox(height: 12),
           _buildRecentlyUsedList(),
 
           const SizedBox(height: 24),
 
           // Favorites
-          _buildSectionHeader('Favorites'),
+          _buildSectionHeader('Favorites', onSeeAll: () => context.go('/library')),
           const SizedBox(height: 12),
           _buildFavoritesList(),
         ],
@@ -101,15 +106,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSearchBar() {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextField(
-        decoration: InputDecoration(
+        onSubmitted: (val) => context.push('/overlays'),
+        decoration: const InputDecoration(
           hintText: 'Search scenes, poses, or locations...',
-          prefixIcon: const Icon(LucideIcons.search),
+          prefixIcon: Icon(LucideIcons.search),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
+          contentPadding: EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 16,
           ),
@@ -118,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, {required VoidCallback onSeeAll}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -129,9 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
         ),
         TextButton(
-          onPressed: () {
-            // TODO: Navigate to full list
-          },
+          onPressed: onSeeAll,
           child: const Text('See All'),
         ),
       ],
@@ -139,39 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSceneGrid() {
-    // Sample scenes - in a real app, this would come from a repository
-    final List<Map<String, String>> sampleScenes = [
-      {
-        'id': '1',
-        'title': 'Beach',
-        'image': 'assets/scenes/beach.jpg',
-      },
-      {
-        'id': '2',
-        'title': 'Restaurant',
-        'image': 'assets/scenes/restaurant.jpg',
-      },
-      {
-        'id': '3',
-        'title': 'Cafe',
-        'image': 'assets/scenes/cafe.jpg',
-      },
-      {
-        'id': '4',
-        'title': 'Street',
-        'image': 'assets/scenes/street.jpg',
-      },
-      {
-        'id': '5',
-        'title': 'Park',
-        'image': 'assets/scenes/park.jpg',
-      },
-      {
-        'id': '6',
-        'title': 'Mountain',
-        'image': 'assets/scenes/mountain.jpg',
-      },
-    ];
+    const sampleScenes = MockData.scenes;
 
     return SizedBox(
       height: 120,
@@ -180,29 +152,35 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: sampleScenes.length,
         itemBuilder: (context, index) {
           final scene = sampleScenes[index];
-          return Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Column(
-              children: [
-                Container(
-                  width: 100,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                      image: AssetImage(scene['image']!),
-                      fit: BoxFit.cover,
+          return GestureDetector(
+            onTap: () {
+              ref.read(selectedSceneProvider.notifier).state = scene;
+              context.push('/environments');
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Column(
+                children: [
+                  Container(
+                    width: 100,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image: AssetImage(scene.imageAsset),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  scene['title']!,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    scene.title,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -211,61 +189,57 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRecentlyUsedList() {
-    // Sample recently used overlays
-    final List<Map<String, String>> recentOverlays = [
-      {
-        'id': '1',
-        'title': 'Portrait Pose',
-        'image': 'assets/overlays/portrait_pose.png',
-      },
-      {
-        'id': '2',
-        'title': 'Couple Pose',
-        'image': 'assets/overlays/couple_pose.png',
-      },
-    ];
+    final hive = ref.watch(hiveServiceProvider);
+    final recents = hive.getRecents();
 
-    if (recentOverlays.isEmpty) {
-      return const Center(
-        child: Text('No recently used overlays'),
-      );
-    }
+    final recentPoses = MockData.poses.where((p) => recents.contains(p.id)).toList();
+    final itemsToDisplay = recentPoses.isNotEmpty ? recentPoses : MockData.poses.take(2).toList();
 
     return SizedBox(
-      height: 100,
+      height: 110,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: recentOverlays.length,
+        itemCount: itemsToDisplay.length,
         itemBuilder: (context, index) {
-          final overlay = recentOverlays[index];
-          return Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Column(
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                      image: AssetImage(overlay['image']!),
-                      fit: BoxFit.cover,
-                    ),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                      width: 1,
+          final pose = itemsToDisplay[index];
+          return GestureDetector(
+            onTap: () {
+              ref.read(selectedOverlayProvider.notifier).state = OverlayModel(
+                id: pose.id,
+                title: pose.title,
+                overlayAsset: pose.overlayAsset,
+              );
+              context.go('/camera');
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Column(
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image: AssetImage(pose.previewImage),
+                        fit: BoxFit.cover,
+                      ),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                        width: 1,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  overlay['title']!,
-                  style: Theme.of(context).textTheme.bodySmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    pose.title,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -274,81 +248,77 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildFavoritesList() {
-    // Sample favorite overlays
-    final List<Map<String, String>> favoriteOverlays = [
-      {
-        'id': '1',
-        'title': 'Golden Hour Pose',
-        'image': 'assets/overlays/golden_hour.png',
-      },
-      {
-        'id': '2',
-        'title': 'Silhouette Pose',
-        'image': 'assets/overlays/silhouette.png',
-      },
-    ];
+    final hive = ref.watch(hiveServiceProvider);
+    final favorites = hive.getFavorites();
 
-    if (favoriteOverlays.isEmpty) {
-      return const Center(
-        child: Text('No favorite overlays yet'),
-      );
-    }
+    final favPoses = MockData.poses.where((p) => favorites.contains(p.id)).toList();
+    final itemsToDisplay = favPoses.isNotEmpty ? favPoses : MockData.poses.where((p) => p.isFavorite).toList();
 
     return SizedBox(
-      height: 100,
+      height: 110,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: favoriteOverlays.length,
+        itemCount: itemsToDisplay.length,
         itemBuilder: (context, index) {
-          final overlay = favoriteOverlays[index];
-          return Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        image: DecorationImage(
-                          image: AssetImage(overlay['image']!),
-                          fit: BoxFit.cover,
-                        ),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 4,
-                      right: 4,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
+          final pose = itemsToDisplay[index];
+          return GestureDetector(
+            onTap: () {
+              ref.read(selectedOverlayProvider.notifier).state = OverlayModel(
+                id: pose.id,
+                title: pose.title,
+                overlayAsset: pose.overlayAsset,
+              );
+              context.go('/camera');
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          LucideIcons.star,
-                          size: 16,
-                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            image: AssetImage(pose.previewImage),
+                            fit: BoxFit.cover,
+                          ),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  overlay['title']!,
-                  style: Theme.of(context).textTheme.bodySmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            LucideIcons.star,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    pose.title,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           );
         },

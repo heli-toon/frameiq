@@ -17,11 +17,9 @@ class _LevelIndicatorState extends State<LevelIndicator> {
   @override
   void initState() {
     super.initState();
-    _accelerometerSubscription = accelerometerEvents.listen((AccelerometerEvent event) {
+    _accelerometerSubscription = accelerometerEventStream().listen((AccelerometerEvent event) {
       if (!mounted) return;
       setState(() {
-        // Simple calculation for horizon leveling
-        // In a real app, we might use more sophisticated sensor fusion
         _roll = event.x;
         _pitch = event.y;
       });
@@ -36,10 +34,8 @@ class _LevelIndicatorState extends State<LevelIndicator> {
 
   @override
   Widget build(BuildContext context) {
-    // Determine if the camera is level (within a threshold)
     bool isLevelHorizontally = _roll.abs() < 0.2;
     bool isLevelVertically = _pitch.abs() < 0.2;
-    bool isLevel = isLevelHorizontally && isLevelVertically;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -52,7 +48,7 @@ class _LevelIndicatorState extends State<LevelIndicator> {
             width: 120,
             height: 4,
             decoration: BoxDecoration(
-              color: isLevelHorizontally ? Colors.greenAccent : Colors.white.withOpacity(0.5),
+              color: isLevelHorizontally ? Colors.greenAccent : Colors.white.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -60,13 +56,13 @@ class _LevelIndicatorState extends State<LevelIndicator> {
         const SizedBox(height: 8),
         // Vertical level indicator
         AnimatedRotation(
-          turns: _pitch * 0.01, // Negative because of coordinate system
+          turns: _pitch * 0.01,
           duration: const Duration(milliseconds: 100),
           child: Container(
             width: 4,
             height: 120,
             decoration: BoxDecoration(
-              color: isLevelVertically ? Colors.greenAccent : Colors.white.withOpacity(0.5),
+              color: isLevelVertically ? Colors.greenAccent : Colors.white.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),

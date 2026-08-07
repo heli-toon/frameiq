@@ -7,7 +7,7 @@ part of 'camera_controller.dart';
 // **************************************************************************
 
 String _$cameraControllerNotifierHash() =>
-    r'b72ff9f23e479b40ce3918d854b182529aa5ef09';
+    r'a05e728bb221c0b007c63ce0f30ba115b968bef5';
 
 /// See also [CameraControllerNotifier].
 @ProviderFor(CameraControllerNotifier)
@@ -55,5 +55,20 @@ final zoomLevelProvider =
 );
 
 typedef _$ZoomLevel = AutoDisposeNotifier<double>;
+String _$gridSettingsHash() => r'93b66df41ed7320f13d32a1ae66b892f0997d7ba';
+
+/// See also [GridSettings].
+@ProviderFor(GridSettings)
+final gridSettingsProvider =
+    AutoDisposeNotifierProvider<GridSettings, GridType>.internal(
+  GridSettings.new,
+  name: r'gridSettingsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$gridSettingsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$GridSettings = AutoDisposeNotifier<GridType>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

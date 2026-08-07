@@ -1,6 +1,6 @@
 import 'package:frameiq/features/camera/domain/models/overlay_model.dart';
 
-List<OverlayModel> mockOverlays = [
+List<OverlayModel> mockOverlays = const [
   OverlayModel(
     id: '1',
     title: 'Rule of Thirds',

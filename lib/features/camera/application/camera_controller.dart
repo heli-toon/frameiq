@@ -1,5 +1,4 @@
 import 'package:camera/camera.dart' as camera;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'camera_controller.g.dart';
@@ -13,12 +12,15 @@ class CameraControllerNotifier extends _$CameraControllerNotifier {
 
     final controller = camera.CameraController(
       cameras.first,
-      camera.ResolutionPreset.max, // Fixed: use max instead of non-existent 'pro'
+      camera.ResolutionPreset.max,
       enableAudio: false,
       imageFormatGroup: camera.ImageFormatGroup.jpeg,
     );
 
     await controller.initialize();
+    ref.onDispose(() {
+      controller.dispose();
+    });
     return controller;
   }
 
@@ -43,12 +45,6 @@ class CameraControllerNotifier extends _$CameraControllerNotifier {
     await controller.setZoomLevel(value);
     ref.read(zoomLevelProvider.notifier).setZoom(value);
   }
-
-  @override
-  void dispose() {
-    final controller = state.value;
-    controller?.dispose();
-  }
 }
 
 @riverpod
@@ -65,4 +61,23 @@ class ZoomLevel extends _$ZoomLevel {
   double build() => 1.0; // Default zoom level
 
   void setZoom(double val) => state = val;
+}
+
+enum GridType { none, ruleOfThirds, goldenRatio }
+
+@riverpod
+class GridSettings extends _$GridSettings {
+  @override
+  GridType build() => GridType.ruleOfThirds;
+
+  void setGridType(GridType type) => state = type;
+  void toggleGrid() {
+    if (state == GridType.none) {
+      state = GridType.ruleOfThirds;
+    } else if (state == GridType.ruleOfThirds) {
+      state = GridType.goldenRatio;
+    } else {
+      state = GridType.none;
+    }
+  }
 }

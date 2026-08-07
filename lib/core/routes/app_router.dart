@@ -8,6 +8,7 @@ import 'package:frameiq/features/environments/presentation/screens/environment_s
 import 'package:frameiq/features/poses/presentation/screens/pose_selection_screen.dart';
 import 'package:frameiq/features/overlays/presentation/screens/overlay_browser_screen.dart';
 import 'package:frameiq/features/camera/presentation/screens/camera_screen.dart';
+import 'package:frameiq/features/camera/presentation/screens/capture_review_screen.dart';
 import 'package:frameiq/features/library/presentation/screens/library_screen.dart';
 import 'package:frameiq/features/settings/presentation/screens/settings_screen.dart';
 
@@ -63,6 +64,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const CameraScreen(),
       ),
 
+      // Capture Review
+      GoRoute(
+        path: '/review',
+        builder: (context, state) {
+          final imagePath = state.extra as String? ?? '';
+          return CaptureReviewScreen(imagePath: imagePath);
+        },
+      ),
+
       // Library
       GoRoute(
         path: '/library',
@@ -76,14 +86,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
 
-    // Hide bottom navigation bar in camera screen
     redirect: (context, state) {
-      final loggingIn = false; // TODO: Replace with actual auth check
-      final loggingOut = false; // TODO: Replace with actual auth check
-
-      if (loggingIn) return '/splash';
-      if (loggingOut) return '/onboarding';
-
       return null;
     },
   );

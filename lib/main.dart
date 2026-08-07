@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:frameiq/core/theme/app_theme.dart';
 import 'package:frameiq/core/routes/app_router.dart';
-import 'package:frameiq/features/onboarding/presentation/screens/splash_screen.dart';
+import 'package:frameiq/core/services/hive_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive for local storage
-  await Hive.initFlutter();
+  // Initialize Hive storage boxes
+  await HiveService.init();
 
   runApp(const ProviderScope(child: FrameIQApp()));
 }
