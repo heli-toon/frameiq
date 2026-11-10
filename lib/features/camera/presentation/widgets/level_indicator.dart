@@ -34,40 +34,64 @@ class _LevelIndicatorState extends State<LevelIndicator> {
 
   @override
   Widget build(BuildContext context) {
-    bool isLevelHorizontally = _roll.abs() < 0.2;
-    bool isLevelVertically = _pitch.abs() < 0.2;
+    // Threshold for being considered level
+    final bool isLevelHorizontally = _roll.abs() < 0.25;
+    final bool isLevel = isLevelHorizontally && (_pitch.abs() < 1.0);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Horizontal level indicator
-        AnimatedRotation(
-          turns: _roll * -0.01,
-          duration: const Duration(milliseconds: 100),
-          child: Container(
-            width: 120,
-            height: 4,
-            decoration: BoxDecoration(
-              color: isLevelHorizontally ? Colors.greenAccent : Colors.white.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(2),
-            ),
+    const levelColor = Color(0xFF10B981); // Emerald-500
+    final normalColor = Colors.white.withValues(alpha: 0.45);
+
+    return IgnorePointer(
+      child: Center(
+        child: SizedBox(
+          width: 140,
+          height: 140,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Minimalist center reticle dot
+              Container(
+                width: 5,
+                height: 5,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isLevel ? levelColor : normalColor,
+                ),
+              ),
+
+              // Rotating Horizon Bar
+              AnimatedRotation(
+                turns: _roll * -0.012,
+                duration: const Duration(milliseconds: 80),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Left wing
+                    Container(
+                      width: 50,
+                      height: 1.5,
+                      decoration: BoxDecoration(
+                        color: isLevel ? levelColor : normalColor,
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                    ),
+                    const SizedBox(width: 40),
+                    // Right wing
+                    Container(
+                      width: 50,
+                      height: 1.5,
+                      decoration: BoxDecoration(
+                        color: isLevel ? levelColor : normalColor,
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 8),
-        // Vertical level indicator
-        AnimatedRotation(
-          turns: _pitch * 0.01,
-          duration: const Duration(milliseconds: 100),
-          child: Container(
-            width: 4,
-            height: 120,
-            decoration: BoxDecoration(
-              color: isLevelVertically ? Colors.greenAccent : Colors.white.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

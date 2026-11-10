@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:frameiq/core/services/hive_service.dart';
+import 'package:frameiq/core/widgets/glass_nav_bar.dart';
 import 'package:frameiq/features/camera/domain/models/overlay_model.dart';
 import 'package:frameiq/features/camera/providers/overlay_providers.dart';
 import 'package:frameiq/shared/data/mock_data.dart';
@@ -21,6 +22,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
         title: const Text('FrameIQ'),
         actions: [
@@ -33,26 +35,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
         children: [
-          // Search Bar
+          // Super-flat Search Bar
           _buildSearchBar(),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
 
           // Popular Scenes
           _buildSectionHeader('Popular Scenes', onSeeAll: () => context.push('/scenes')),
           const SizedBox(height: 12),
           _buildSceneGrid(),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
 
           // Recently Used
           _buildSectionHeader('Recently Used', onSeeAll: () => context.go('/library')),
           const SizedBox(height: 12),
           _buildRecentlyUsedList(),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
 
           // Favorites
           _buildSectionHeader('Favorites', onSeeAll: () => context.go('/library')),
@@ -60,9 +62,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _buildFavoritesList(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: GlassFloatingNavBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
+        onItemSelected: (index) {
           setState(() {
             _selectedIndex = index;
           });
@@ -81,43 +83,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               break;
           }
         },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(LucideIcons.house),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(LucideIcons.camera),
-            label: 'Camera',
-          ),
-          NavigationDestination(
-            icon: Icon(LucideIcons.images),
-            label: 'Library',
-          ),
-          NavigationDestination(
-            icon: Icon(LucideIcons.settings),
-            label: 'Settings',
-          ),
-        ],
       ),
     );
   }
 
   Widget _buildSearchBar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : const Color(0xFFE2E8F0);
+
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: borderColor,
+          width: 0.8,
+        ),
       ),
       child: TextField(
         onSubmitted: (val) => context.push('/overlays'),
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           hintText: 'Search scenes, poses, or locations...',
-          prefixIcon: Icon(LucideIcons.search),
+          hintStyle: TextStyle(
+            fontSize: 14,
+            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+          ),
+          prefixIcon: Icon(
+            LucideIcons.search,
+            size: 18,
+            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+          ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
-            vertical: 16,
+            vertical: 14,
           ),
         ),
       ),
@@ -127,16 +130,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildSectionHeader(String title, {required VoidCallback onSeeAll}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.2,
               ),
         ),
-        TextButton(
-          onPressed: onSeeAll,
-          child: const Text('See All'),
+        GestureDetector(
+          onTap: onSeeAll,
+          child: Text(
+            'See All',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ),
         ),
       ],
     );
@@ -144,9 +157,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildSceneGrid() {
     const sampleScenes = MockData.scenes;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : const Color(0xFFE2E8F0);
 
     return SizedBox(
-      height: 120,
+      height: 124,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: sampleScenes.length,
@@ -160,12 +177,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: 100,
-                    height: 80,
+                    width: 110,
+                    height: 82,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: borderColor,
+                        width: 0.8,
+                      ),
                       image: DecorationImage(
                         image: AssetImage(scene.imageAsset),
                         fit: BoxFit.cover,
@@ -173,11 +195,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    scene.title,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  SizedBox(
+                    width: 110,
+                    child: Text(
+                      scene.title,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -191,12 +218,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildRecentlyUsedList() {
     final hive = ref.watch(hiveServiceProvider);
     final recents = hive.getRecents();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : const Color(0xFFE2E8F0);
 
     final recentPoses = MockData.poses.where((p) => recents.contains(p.id)).toList();
     final itemsToDisplay = recentPoses.isNotEmpty ? recentPoses : MockData.poses.take(2).toList();
 
     return SizedBox(
-      height: 110,
+      height: 114,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: itemsToDisplay.length,
@@ -214,6 +245,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     width: 80,
@@ -225,18 +257,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         fit: BoxFit.cover,
                       ),
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                        width: 1,
+                        color: borderColor,
+                        width: 0.8,
                       ),
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    pose.title,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      pose.title,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -250,12 +287,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildFavoritesList() {
     final hive = ref.watch(hiveServiceProvider);
     final favorites = hive.getFavorites();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.10)
+        : const Color(0xFFE2E8F0);
 
     final favPoses = MockData.poses.where((p) => favorites.contains(p.id)).toList();
     final itemsToDisplay = favPoses.isNotEmpty ? favPoses : MockData.poses.where((p) => p.isFavorite).toList();
 
     return SizedBox(
-      height: 110,
+      height: 114,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: itemsToDisplay.length,
@@ -273,6 +314,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Stack(
                     children: [
@@ -286,8 +328,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             fit: BoxFit.cover,
                           ),
                           border: Border.all(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 2,
+                            color: borderColor,
+                            width: 0.8,
                           ),
                         ),
                       ),
@@ -297,25 +339,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Colors.black.withValues(alpha: 0.65),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             LucideIcons.star,
-                            size: 14,
-                            color: Colors.white,
+                            size: 11,
+                            color: Color(0xFFFBBF24), // Warm gold star
                           ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    pose.title,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      pose.title,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),

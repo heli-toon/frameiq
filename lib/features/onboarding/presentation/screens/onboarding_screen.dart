@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -18,27 +17,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       'title': 'Better Composition',
       'description':
-          'Learn professional composition techniques with visual overlays',
+          'Master professional composition techniques with live visual overlays directly in your viewfinder.',
       'image': 'assets/onboarding/composition.png',
     },
     {
       'title': 'Guided Photography',
       'description':
-          'Get real-time guidance on posing, framing, and camera settings',
+          'Receive real-time alignment and tilt guidance to pose, frame, and capture confident shots.',
       'image': 'assets/onboarding/guidance.png',
     },
     {
       'title': 'Save Your Favorites',
       'description':
-          'Bookmark your favorite compositions for quick access later',
+          'Bookmark your favorite poses and scene setups for fast, effortless shooting anywhere.',
       'image': 'assets/onboarding/favorites.png',
     }
   ];
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -53,117 +47,124 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _skipOnboarding() {
-    // In a real app, we would save this preference
-    // For now, just go to home
-    // context.go('/home');
     context.go('/home');
   }
 
   void _completeOnboarding() {
-    // In a real app, we would save this preference
-    // For now, just go to home
     context.go('/home');
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            // Skip button
-            Align(
-              alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: _skipOnboarding,
-                child: const Text('Skip'),
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // PageView
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: _onPageChanged,
-                children: _onboardingData.map((item) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        item['image']!,
-                        height: 200,
-                      ),
-                      const SizedBox(height: 32),
-                      Text(
-                        item['title']!,
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        item['description']!,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Page indicator
-            SmoothPageIndicator(
-              controller: _pageController,
-              count: _onboardingData.length,
-              effect: const ExpandingDotsEffect(
-                activeDotColor: Colors.blue,
-                dotHeight: 8,
-                dotWidth: 8,
-                spacing: 8,
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (_currentPage < _onboardingData.length - 1)
-                  ElevatedButton(
-                    onPressed: () {
-                      _pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeIn,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          child: Column(
+            children: [
+              // Top Bar: Skip button
+              Align(
+                alignment: Alignment.topRight,
+                child: TextButton(
+                  onPressed: _skipOnboarding,
+                  child: Text(
+                    'Skip',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                     ),
-                    child: const Text('Next'),
-                  )
-                else
-                  ElevatedButton(
-                    onPressed: _completeOnboarding,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                    ),
-                    child: const Text('Get Started'),
                   ),
-              ],
-            ),
-          ],
+                ),
+              ),
+
+              // Page Content
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  children: _onboardingData.map((item) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            constraints: const BoxConstraints(maxHeight: 220),
+                            child: Image.asset(
+                              item['image']!,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(height: 48),
+                          Text(
+                            item['title']!,
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.4,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            item['description']!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              height: 1.45,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Super-flat Page Indicator
+              SmoothPageIndicator(
+                controller: _pageController,
+                count: _onboardingData.length,
+                effect: ExpandingDotsEffect(
+                  activeDotColor: primaryColor,
+                  dotColor: isDark ? Colors.white24 : const Color(0xFFE2E8F0),
+                  dotHeight: 6,
+                  dotWidth: 6,
+                  spacing: 6,
+                  expansionFactor: 3.5,
+                ),
+              ),
+
+              const SizedBox(height: 36),
+
+              // Action Buttons
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: _currentPage < _onboardingData.length - 1
+                    ? OutlinedButton(
+                        onPressed: () {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.easeOutCubic,
+                          );
+                        },
+                        child: const Text('Next'),
+                      )
+                    : ElevatedButton(
+                        onPressed: _completeOnboarding,
+                        child: const Text('Get Started'),
+                      ),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
         ),
       ),
     );

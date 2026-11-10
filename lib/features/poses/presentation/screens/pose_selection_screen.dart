@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:frameiq/core/widgets/glass_surface.dart';
 import 'package:frameiq/features/camera/domain/models/overlay_model.dart';
 import 'package:frameiq/features/camera/providers/overlay_providers.dart';
 import 'package:frameiq/features/poses/domain/models/pose_model.dart';
@@ -23,6 +24,10 @@ class PoseSelectionScreen extends ConsumerWidget {
     }).toList();
 
     final displayedPoses = matchingPoses.isNotEmpty ? matchingPoses : MockData.poses;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.12)
+        : const Color(0xFFE2E8F0);
 
     return Scaffold(
       appBar: AppBar(
@@ -33,24 +38,32 @@ class PoseSelectionScreen extends ConsumerWidget {
         ),
       ),
       body: GridView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.75,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+          childAspectRatio: 0.74,
+          crossAxisSpacing: 14,
+          mainAxisSpacing: 14,
         ),
         itemCount: displayedPoses.length,
         itemBuilder: (context, index) {
           final pose = displayedPoses[index];
           final isFav = hive.isFavorite(pose.id);
-          return _buildPoseCard(context, ref, pose, isFav);
+          return _buildPoseCard(context, ref, pose, isFav, borderColor);
         },
       ),
     );
   }
 
-  Widget _buildPoseCard(BuildContext context, WidgetRef ref, PoseModel pose, bool isFav) {
+  Widget _buildPoseCard(
+    BuildContext context,
+    WidgetRef ref,
+    PoseModel pose,
+    bool isFav,
+    Color borderColor,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () {
         ref.read(selectedPoseProvider.notifier).state = pose;
@@ -78,15 +91,12 @@ class PoseSelectionScreen extends ConsumerWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           color: Theme.of(context).cardTheme.color,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(
+            color: borderColor,
+            width: 0.8,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -114,22 +124,32 @@ class PoseSelectionScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(6),
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.10)
+                                  : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                color: borderColor,
+                                width: 0.8,
+                              ),
                             ),
                             child: Text(
                               pose.category,
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF0F172A),
                                 fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
                           const Spacer(),
                           Text(
                             pose.difficulty,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                            ),
                           ),
                         ],
                       ),
@@ -137,7 +157,8 @@ class PoseSelectionScreen extends ConsumerWidget {
                       Text(
                         pose.title,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.2,
                             ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -147,23 +168,23 @@ class PoseSelectionScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            // Favorite Button
+
+            // Floating Frosted Glass Favorite Button
             Positioned(
               top: 8,
               right: 8,
-              child: CircleAvatar(
-                radius: 16,
-                backgroundColor: Colors.black54,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: Icon(
-                    isFav ? LucideIcons.star : LucideIcons.star,
-                    size: 16,
-                    color: isFav ? Colors.amber : Colors.white70,
-                  ),
-                  onPressed: () async {
-                    await ref.read(hiveServiceProvider).toggleFavorite(pose.id);
-                  },
+              child: GlassSurface.circle(
+                blurSigma: 12,
+                surfaceColor: Colors.black.withValues(alpha: 0.50),
+                borderColor: Colors.white.withValues(alpha: 0.16),
+                padding: const EdgeInsets.all(6),
+                onTap: () async {
+                  await ref.read(hiveServiceProvider).toggleFavorite(pose.id);
+                },
+                child: Icon(
+                  LucideIcons.star,
+                  size: 14,
+                  color: isFav ? const Color(0xFFFBBF24) : Colors.white70,
                 ),
               ),
             ),
