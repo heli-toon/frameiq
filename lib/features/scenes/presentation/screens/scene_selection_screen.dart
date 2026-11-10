@@ -60,6 +60,8 @@ class _SceneSelectionScreenState extends ConsumerState<SceneSelectionScreen> {
               child: TextField(
                 onChanged: (val) => setState(() => _searchQuery = val),
                 decoration: InputDecoration(
+                  filled: false,
+                  fillColor: Colors.transparent,
                   hintText: 'Search scenes (Beach, Cafe, Street)...',
                   hintStyle: TextStyle(
                     fontSize: 14,

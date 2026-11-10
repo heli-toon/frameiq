@@ -5,6 +5,7 @@ import 'package:camera/camera.dart' as camera;
 import 'package:go_router/go_router.dart';
 import 'package:frameiq/core/widgets/glass_surface.dart';
 import 'package:frameiq/features/camera/application/camera_controller.dart';
+import 'package:frameiq/features/camera/providers/camera_sensor_provider.dart';
 
 class CameraControls extends ConsumerStatefulWidget {
   final VoidCallback onCapture;
@@ -32,12 +33,15 @@ class _CameraControlsState extends ConsumerState<CameraControls> {
     final zoomLevel = ref.watch(zoomLevelProvider);
     final cameraAsync = ref.watch(cameraControllerNotifierProvider);
     final gridType = ref.watch(gridSettingsProvider);
+    final sensor = ref.watch(cameraSensorProvider);
 
     final isTorchOn = cameraAsync.when(
       data: (controller) => controller?.value.flashMode == camera.FlashMode.torch,
       loading: () => false,
       error: (_, __) => false,
     );
+
+    final turns = sensor.orientationTurns;
 
     return Positioned(
       bottom: 28,
@@ -75,20 +79,25 @@ class _CameraControlsState extends ConsumerState<CameraControls> {
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(LucideIcons.zoom_in, size: 14, color: Colors.white70),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${zoomLevel.toStringAsFixed(1)}x',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                    child: AnimatedRotation(
+                      turns: turns,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(LucideIcons.zoom_in, size: 14, color: Colors.white70),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${zoomLevel.toStringAsFixed(1)}x',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -122,20 +131,25 @@ class _CameraControlsState extends ConsumerState<CameraControls> {
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(LucideIcons.blend, size: 14, color: Colors.white70),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${(overlayOpacity * 100).toInt()}%',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                    child: AnimatedRotation(
+                      turns: turns,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(LucideIcons.blend, size: 14, color: Colors.white70),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${(overlayOpacity * 100).toInt()}%',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -202,10 +216,15 @@ class _CameraControlsState extends ConsumerState<CameraControls> {
                 borderColor: Colors.white.withValues(alpha: 0.14),
                 padding: const EdgeInsets.all(12),
                 onTap: widget.onFlashToggle,
-                child: Icon(
-                  isTorchOn ? LucideIcons.zap : LucideIcons.zap_off,
-                  color: isTorchOn ? const Color(0xFFFBBF24) : Colors.white,
-                  size: 20,
+                child: AnimatedRotation(
+                  turns: turns,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  child: Icon(
+                    isTorchOn ? LucideIcons.zap : LucideIcons.zap_off,
+                    color: isTorchOn ? const Color(0xFFFBBF24) : Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
 
@@ -218,14 +237,19 @@ class _CameraControlsState extends ConsumerState<CameraControls> {
                 onTap: () {
                   ref.read(gridSettingsProvider.notifier).toggleGrid();
                 },
-                child: Icon(
-                  gridType == GridType.none
-                      ? LucideIcons.grid_2x2
-                      : gridType == GridType.ruleOfThirds
-                          ? LucideIcons.grid_3x3
-                          : LucideIcons.frame,
-                  color: gridType != GridType.none ? const Color(0xFF38BDF8) : Colors.white,
-                  size: 20,
+                child: AnimatedRotation(
+                  turns: turns,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  child: Icon(
+                    gridType == GridType.none
+                        ? LucideIcons.grid_2x2
+                        : gridType == GridType.ruleOfThirds
+                            ? LucideIcons.grid_3x3
+                            : LucideIcons.frame,
+                    color: gridType != GridType.none ? const Color(0xFF38BDF8) : Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
 
@@ -259,10 +283,15 @@ class _CameraControlsState extends ConsumerState<CameraControls> {
                 borderColor: Colors.white.withValues(alpha: 0.14),
                 padding: const EdgeInsets.all(12),
                 onTap: () => context.push('/overlays'),
-                child: const Icon(
-                  LucideIcons.sparkles,
-                  color: Colors.white,
-                  size: 20,
+                child: AnimatedRotation(
+                  turns: turns,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  child: const Icon(
+                    LucideIcons.sparkles,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
 
@@ -273,10 +302,15 @@ class _CameraControlsState extends ConsumerState<CameraControls> {
                 borderColor: Colors.white.withValues(alpha: 0.14),
                 padding: const EdgeInsets.all(12),
                 onTap: () => context.go('/library'),
-                child: const Icon(
-                  LucideIcons.images,
-                  color: Colors.white,
-                  size: 20,
+                child: AnimatedRotation(
+                  turns: turns,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  child: const Icon(
+                    LucideIcons.images,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
             ],

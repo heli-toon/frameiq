@@ -1,85 +1,68 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:sensors_plus/sensors_plus.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frameiq/features/camera/providers/camera_sensor_provider.dart';
 
-class LevelIndicator extends StatefulWidget {
+class LevelIndicator extends ConsumerWidget {
   const LevelIndicator({super.key});
 
   @override
-  State<LevelIndicator> createState() => _LevelIndicatorState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sensor = ref.watch(cameraSensorProvider);
 
-class _LevelIndicatorState extends State<LevelIndicator> {
-  double _roll = 0; // Left/Right tilt
-  double _pitch = 0; // Forward/Backward tilt
-  StreamSubscription<AccelerometerEvent>? _accelerometerSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    _accelerometerSubscription = accelerometerEventStream().listen((AccelerometerEvent event) {
-      if (!mounted) return;
-      setState(() {
-        _roll = event.x;
-        _pitch = event.y;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _accelerometerSubscription?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Threshold for being considered level
-    final bool isLevelHorizontally = _roll.abs() < 0.25;
-    final bool isLevel = isLevelHorizontally && (_pitch.abs() < 1.0);
+    if (!sensor.isUpright) {
+      // When phone is placed flat on a surface, no horizon line to level
+      return const SizedBox.shrink();
+    }
 
     const levelColor = Color(0xFF10B981); // Emerald-500
-    final normalColor = Colors.white.withValues(alpha: 0.45);
+    final normalColor = Colors.white.withValues(alpha: 0.50);
+
+    final isLevel = sensor.isLevel;
+    final rollDelta = sensor.rollDegrees;
 
     return IgnorePointer(
       child: Center(
         child: SizedBox(
-          width: 140,
-          height: 140,
+          width: 160,
+          height: 160,
           child: Stack(
             alignment: Alignment.center,
             children: [
               // Minimalist center reticle dot
-              Container(
-                width: 5,
-                height: 5,
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: isLevel ? 7 : 5,
+                height: isLevel ? 7 : 5,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isLevel ? levelColor : normalColor,
                 ),
               ),
 
-              // Rotating Horizon Bar
+              // Rotating Horizon Bar counter-rotates with phone tilt to stay parallel with the earth horizon
               AnimatedRotation(
-                turns: _roll * -0.012,
-                duration: const Duration(milliseconds: 80),
+                turns: -rollDelta / 360.0,
+                duration: const Duration(milliseconds: 70),
+                curve: Curves.linear,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Left wing
-                    Container(
-                      width: 50,
-                      height: 1.5,
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: isLevel ? 54 : 48,
+                      height: isLevel ? 2.2 : 1.5,
                       decoration: BoxDecoration(
                         color: isLevel ? levelColor : normalColor,
                         borderRadius: BorderRadius.circular(1),
                       ),
                     ),
-                    const SizedBox(width: 40),
+                    const SizedBox(width: 44),
                     // Right wing
-                    Container(
-                      width: 50,
-                      height: 1.5,
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: isLevel ? 54 : 48,
+                      height: isLevel ? 2.2 : 1.5,
                       decoration: BoxDecoration(
                         color: isLevel ? levelColor : normalColor,
                         borderRadius: BorderRadius.circular(1),
@@ -88,6 +71,27 @@ class _LevelIndicatorState extends State<LevelIndicator> {
                   ],
                 ),
               ),
+
+              // Live degree deviation badge (visible when slightly off-level)
+              if (!isLevel && rollDelta.abs() >= 1.2 && rollDelta.abs() < 15.0)
+                Positioned(
+                  bottom: 50,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.45),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${rollDelta.abs().toStringAsFixed(1)}°',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

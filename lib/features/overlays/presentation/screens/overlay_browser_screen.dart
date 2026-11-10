@@ -65,6 +65,8 @@ class _OverlayBrowserScreenState extends ConsumerState<OverlayBrowserScreen> {
                   child: TextField(
                     onChanged: (val) => setState(() => _searchQuery = val),
                     decoration: InputDecoration(
+                      filled: false,
+                      fillColor: Colors.transparent,
                       hintText: 'Search composition overlays...',
                       hintStyle: TextStyle(
                         fontSize: 14,

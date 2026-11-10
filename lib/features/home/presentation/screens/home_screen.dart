@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:frameiq/core/services/hive_service.dart';
+import 'package:frameiq/core/widgets/glass_surface.dart';
 import 'package:frameiq/core/widgets/glass_nav_bar.dart';
 import 'package:frameiq/features/camera/domain/models/overlay_model.dart';
 import 'package:frameiq/features/camera/providers/overlay_providers.dart';
@@ -89,38 +90,68 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildSearchBar() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.12)
+    final outerBorderColor = isDark
+        ? Colors.white.withValues(alpha: 0.14)
         : const Color(0xFFE2E8F0);
+    final innerBorderColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.04);
+    final outerSurfaceColor = isDark
+        ? const Color(0xFF0F172A).withValues(alpha: 0.65)
+        : Colors.white.withValues(alpha: 0.72);
+    final innerSurfaceColor = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : const Color(0xFFF1F5F9).withValues(alpha: 0.75);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: borderColor,
-          width: 0.8,
+    return GlassSurface(
+      borderRadius: BorderRadius.circular(18),
+      blurSigma: 16,
+      surfaceColor: outerSurfaceColor,
+      borderColor: outerBorderColor,
+      borderWidth: 0.8,
+      padding: const EdgeInsets.all(5),
+      child: Container(
+        decoration: BoxDecoration(
+          color: innerSurfaceColor,
+          borderRadius: BorderRadius.circular(13),
+          border: Border.all(
+            color: innerBorderColor,
+            width: 0.6,
+          ),
         ),
-      ),
-      child: TextField(
-        onSubmitted: (val) => context.push('/overlays'),
-        decoration: InputDecoration(
-          hintText: 'Search scenes, poses, or locations...',
-          hintStyle: TextStyle(
-            fontSize: 14,
-            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-          ),
-          prefixIcon: Icon(
-            LucideIcons.search,
-            size: 18,
-            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-          ),
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
+        child: TextField(
+          onSubmitted: (val) => context.push('/overlays'),
+          decoration: InputDecoration(
+            isDense: true,
+            filled: false,
+            fillColor: Colors.transparent,
+            hintText: 'Search scenes, poses, or locations...',
+            hintStyle: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            ),
+            prefixIcon: Icon(
+              LucideIcons.search,
+              size: 17,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                LucideIcons.sliders_horizontal,
+                size: 16,
+                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+              ),
+              onPressed: () => context.push('/overlays'),
+              tooltip: 'Browse Overlays',
+            ),
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
           ),
         ),
       ),
