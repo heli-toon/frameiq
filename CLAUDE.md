@@ -76,7 +76,7 @@ To run linting: `flutter analyze`
 
 ## Platform-Specific Considerations
 
-This Flutter project supports multiple platforms (mobile, web, desktop). 
+This Flutter project targets mobile (Android, iOS) and web. 
 Platform-specific code should be placed in:
 - `lib/` for cross-platform code
 - Platform-specific directories if needed (though this basic template doesn't include them)
