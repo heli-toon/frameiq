@@ -41,7 +41,7 @@ class LevelIndicator extends ConsumerWidget {
 
               // Rotating Horizon Bar counter-rotates with phone tilt to stay parallel with the earth horizon
               AnimatedRotation(
-                turns: -rollDelta / 360.0,
+                turns: rollDelta / 360.0,
                 duration: const Duration(milliseconds: 70),
                 curve: Curves.linear,
                 child: Row(
