@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:frameiq/core/widgets/frameiq_logo.dart';
 import 'package:frameiq/core/services/hive_service.dart';
 import 'package:frameiq/core/widgets/glass_nav_bar.dart';
 import 'package:frameiq/features/camera/application/camera_controller.dart';
@@ -176,7 +177,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               children: [
                 ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-                  leading: const Icon(LucideIcons.info, size: 20),
+                  leading: const FrameIQLogo(size: 22),
                   title: const Text('Version', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                   trailing: Text(
                     '1.0.0+1',

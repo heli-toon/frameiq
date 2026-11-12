@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:frameiq/core/widgets/frameiq_logo.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -55,10 +55,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Minimalist geometric camera icon inside a clean flat frame
+              // FrameIQ brand mark inside a precision flat frame
               Container(
                 width: 76,
                 height: 76,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
@@ -68,10 +69,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     width: 1.2,
                   ),
                 ),
-                child: Icon(
-                  LucideIcons.camera,
-                  size: 36,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                child: const FrameIQLogo(
+                  size: 46,
                 ),
               ),
               const SizedBox(height: 24),

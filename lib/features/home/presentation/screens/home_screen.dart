@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:frameiq/core/widgets/frameiq_logo.dart';
 import 'package:frameiq/core/services/hive_service.dart';
 import 'package:frameiq/core/widgets/glass_surface.dart';
 import 'package:frameiq/core/widgets/glass_nav_bar.dart';
@@ -25,7 +26,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
-        title: const Text('FrameIQ'),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FrameIQLogo(size: 22),
+            SizedBox(width: 10),
+            Text('FrameIQ'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.settings),

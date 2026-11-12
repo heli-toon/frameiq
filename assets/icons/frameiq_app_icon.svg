@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#090D16"/>
+  <rect x="0" y="0" width="512" height="512" fill="url(#subtle-grad)"/>
+  <defs>
+    <linearGradient id="subtle-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1E293B" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#090D16" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <!-- FrameIQ Brand Caliper in Crisp Optical White -->
+  <path d="M 88 152 
+           C 88 116.65 116.65 88 152 88 
+           L 398 88 
+           C 412.36 88 424 99.64 424 114 
+           C 424 128.36 412.36 140 398 140 
+           L 156 140 
+           C 147.16 140 140 147.16 140 156 
+           L 140 398 
+           C 140 412.36 128.36 424 114 424 
+           C 99.64 424 88 412.36 88 398 
+           Z" fill="#FFFFFF"/>
+
+  <path d="M 140 236 
+           L 230 236 
+           C 244.36 236 256 247.64 256 262 
+           C 256 276.36 244.36 288 230 288 
+           L 140 288 
+           Z" fill="#FFFFFF"/>
+
+  <path d="M 424 282 
+           C 424 267.64 412.36 256 398 256 
+           C 383.64 256 372 267.64 372 282 
+           L 372 356 
+           C 372 364.84 364.84 372 356 372 
+           L 282 372 
+           C 267.64 372 256 383.64 256 398 
+           C 256 412.36 267.64 424 282 424 
+           L 360 424 
+           C 395.35 424 424 395.35 424 360 
+           Z" fill="#FFFFFF"/>
+
+  <!-- Electric Lens Blue Coaching Core -->
+  <circle cx="316" cy="198" r="38" fill="#3B82F6"/>
+  <circle cx="316" cy="198" r="16" fill="#090D16"/>
+</svg>
