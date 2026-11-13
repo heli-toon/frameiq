@@ -45,6 +45,35 @@ class CameraControllerNotifier extends _$CameraControllerNotifier {
     await controller.setZoomLevel(value);
     ref.read(zoomLevelProvider.notifier).setZoom(value);
   }
+
+  /// Pauses the camera preview and turns off torch to conserve battery.
+  Future<void> pauseCamera() async {
+    final controller = state.value;
+    if (controller == null || !controller.value.isInitialized) return;
+    try {
+      if (controller.value.flashMode == camera.FlashMode.torch) {
+        await controller.setFlashMode(camera.FlashMode.off);
+      }
+      if (!controller.value.isPreviewPaused) {
+        await controller.pausePreview();
+      }
+    } catch (_) {
+      // Graceful fallback on devices/platforms where pausePreview is unsupported
+    }
+  }
+
+  /// Resumes the camera preview when waking from battery-saving mode.
+  Future<void> resumeCamera() async {
+    final controller = state.value;
+    if (controller == null || !controller.value.isInitialized) return;
+    try {
+      if (controller.value.isPreviewPaused) {
+        await controller.resumePreview();
+      }
+    } catch (_) {
+      // Graceful fallback
+    }
+  }
 }
 
 @riverpod

@@ -21,24 +21,36 @@ class CameraScreen extends ConsumerStatefulWidget {
   ConsumerState<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends ConsumerState<CameraScreen> {
+class _CameraScreenState extends ConsumerState<CameraScreen>
+    with WidgetsBindingObserver {
   Timer? _inactivityTimer;
   bool _isPowerSaving = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Keep the screen awake during active camera shooting
     _enableWakelock();
-    _resetInactivityTimer();
+    _startInactivityTimer();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _inactivityTimer?.cancel();
     // Release the wakelock when exiting the camera screen
     WakelockPlus.disable();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      _enterPowerSaving();
+    } else if (state == AppLifecycleState.resumed && !_isPowerSaving) {
+      ref.read(cameraControllerNotifierProvider.notifier).resumeCamera();
+    }
   }
 
   void _enableWakelock() async {
@@ -49,29 +61,60 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
     }
   }
 
-  void _resetInactivityTimer() {
-    _inactivityTimer?.cancel();
-    if (_isPowerSaving) {
-      setState(() {
-        _isPowerSaving = false;
-      });
-      _enableWakelock();
+  void _disableWakelock() async {
+    try {
+      await WakelockPlus.disable();
+    } catch (_) {
+      // Graceful fallback
     }
+  }
 
+  void _startInactivityTimer() {
+    _inactivityTimer?.cancel();
     // After 90 seconds of inactivity, enter battery-saving mode
     _inactivityTimer = Timer(const Duration(seconds: 90), () {
-      if (mounted) {
-        setState(() {
-          _isPowerSaving = true;
-        });
-        // Allow the OS screen timeout to sleep the display when unattended
-        WakelockPlus.disable();
+      if (mounted && !_isPowerSaving) {
+        _enterPowerSaving();
       }
     });
   }
 
+  void _resetInactivityTimer() {
+    if (_isPowerSaving) {
+      _wakeFromPowerSaving();
+      return;
+    }
+    _startInactivityTimer();
+  }
+
+  void _enterPowerSaving() {
+    if (!mounted) return;
+    setState(() {
+      _isPowerSaving = true;
+    });
+    _inactivityTimer?.cancel();
+
+    // 1. Allow the OS screen timeout to sleep the display when unattended
+    _disableWakelock();
+
+    // 2. Actually pause the camera hardware and stop the preview stream
+    ref.read(cameraControllerNotifierProvider.notifier).pauseCamera();
+  }
+
   void _wakeFromPowerSaving() {
-    _resetInactivityTimer();
+    if (!mounted) return;
+    setState(() {
+      _isPowerSaving = false;
+    });
+
+    // 1. Re-enable wakelock for active shooting
+    _enableWakelock();
+
+    // 2. Resume camera hardware and preview stream
+    ref.read(cameraControllerNotifierProvider.notifier).resumeCamera();
+
+    // 3. Restart inactivity timer
+    _startInactivityTimer();
   }
 
   @override
@@ -98,103 +141,110 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
             return Stack(
               fit: StackFit.expand,
               children: [
-                // 1. Camera Preview
-                Center(
-                  child: CameraPreview(controller),
-                ),
+                // 1. Live Camera Preview (Only mounted and rendering when camera is active)
+                if (!_isPowerSaving)
+                  Center(
+                    child: CameraPreview(controller),
+                  )
+                else
+                  // Pure OLED solid black surface (0 power draw, hardware preview feed is stopped)
+                  const ColoredBox(color: Colors.black),
 
-                // 2. Rule of Thirds / Golden Ratio Grid Overlay
-                const GridOverlay(),
+                // 2. Viewfinder Overlays & Controls (Only active when camera is awake)
+                if (!_isPowerSaving) ...[
+                  // Rule of Thirds / Golden Ratio Grid Overlay
+                  const GridOverlay(),
 
-                // 3. Composition Reference Overlay (The Coach)
-                const CompositionOverlay(),
+                  // Composition Reference Overlay (The Coach)
+                  const CompositionOverlay(),
 
-                // 4. Real-time Leveling Guide
-                const Center(child: LevelIndicator()),
+                  // Real-time Leveling Guide
+                  const Center(child: LevelIndicator()),
 
-                // 5. UI Controls Layer (Floating Glass Controls)
-                CameraControls(
-                  onCapture: () async {
-                    _resetInactivityTimer();
-                    final navigator = GoRouter.of(context);
-                    final xFile = await ref
-                        .read(cameraControllerNotifierProvider.notifier)
-                        .capturePhoto();
-                    if (xFile != null) {
-                      navigator.push('/review', extra: xFile.path);
-                    }
-                  },
-                  onFlashToggle: () {
-                    _resetInactivityTimer();
-                    ref
-                        .read(cameraControllerNotifierProvider.notifier)
-                        .toggleFlash();
-                  },
-                  onZoomChanged: (value) {
-                    _resetInactivityTimer();
-                    ref
-                        .read(cameraControllerNotifierProvider.notifier)
-                        .setZoom(value);
-                  },
-                ),
+                  // UI Controls Layer (Floating Glass Controls)
+                  CameraControls(
+                    onCapture: () async {
+                      _resetInactivityTimer();
+                      final navigator = GoRouter.of(context);
+                      final xFile = await ref
+                          .read(cameraControllerNotifierProvider.notifier)
+                          .capturePhoto();
+                      if (xFile != null) {
+                        navigator.push('/review', extra: xFile.path);
+                      }
+                    },
+                    onFlashToggle: () {
+                      _resetInactivityTimer();
+                      ref
+                          .read(cameraControllerNotifierProvider.notifier)
+                          .toggleFlash();
+                    },
+                    onZoomChanged: (value) {
+                      _resetInactivityTimer();
+                      ref
+                          .read(cameraControllerNotifierProvider.notifier)
+                          .setZoom(value);
+                    },
+                  ),
 
-                // 6. Top Status Bar (Glass Back button + Recommendation Header)
-                Positioned(
-                  top: 50,
-                  left: 16,
-                  right: 16,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GlassSurface.circle(
-                        blurSigma: 14,
-                        surfaceColor: Colors.black.withValues(alpha: 0.45),
-                        borderColor: Colors.white.withValues(alpha: 0.16),
-                        padding: const EdgeInsets.all(10),
-                        onTap: () {
-                          if (context.canPop()) {
-                            context.pop();
-                          } else {
-                            context.go('/home');
-                          }
-                        },
-                        child: AnimatedRotation(
-                          turns: sensor.orientationTurns,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutCubic,
-                          child: const Icon(
-                            LucideIcons.arrow_left,
-                            color: Colors.white,
-                            size: 18,
+                  // Top Status Bar (Glass Back button + Recommendation Header)
+                  Positioned(
+                    top: 50,
+                    left: 16,
+                    right: 16,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GlassSurface.circle(
+                          blurSigma: 14,
+                          surfaceColor: Colors.black.withValues(alpha: 0.45),
+                          borderColor: Colors.white.withValues(alpha: 0.16),
+                          padding: const EdgeInsets.all(10),
+                          onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.go('/home');
+                            }
+                          },
+                          child: AnimatedRotation(
+                            turns: sensor.orientationTurns,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOutCubic,
+                            child: const Icon(
+                              LucideIcons.arrow_left,
+                              color: Colors.white,
+                              size: 18,
+                            ),
                           ),
                         ),
-                      ),
-                      const RecommendationHeader(),
-                      const SizedBox(width: 38), // Visual balance
-                    ],
+                        const RecommendationHeader(),
+                        const SizedBox(width: 38), // Visual balance
+                      ],
+                    ),
                   ),
-                ),
+                ],
 
-                // 7. Battery-saving Inactivity Dimmer Overlay
+                // 3. Battery-saving Inactivity Sleep Layer
                 if (_isPowerSaving)
                   GestureDetector(
                     onTap: _wakeFromPowerSaving,
                     behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      color: Colors.black.withValues(alpha: 0.88),
+                    child: ColoredBox(
+                      color: Colors.black, // Pure solid black for OLED power savings
                       child: Center(
                         child: GlassSurface.pill(
                           blurSigma: 16,
-                          surfaceColor: Colors.black.withValues(alpha: 0.60),
+                          surfaceColor: Colors.black.withValues(alpha: 0.70),
                           borderColor: Colors.white.withValues(alpha: 0.20),
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                           child: const Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
                                 LucideIcons.moon,
                                 color: Color(0xFFFBBF24),
-                                size: 28,
+                                size: 30,
                               ),
                               SizedBox(height: 12),
                               Text(
